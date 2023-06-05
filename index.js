@@ -19,18 +19,30 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
-app.get('/api/:date', (req, res) => {
-  const {date} = req.params;
-  const timestamp = new Date(parseInt(date));
-  const weekday = ["Sun","Mon","Tues","Wed","Thu","Fri","Sat"];
-  const month = ["Jan","Feb","Mar","Apr","May","Jun","Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const utcTime = weekday[timestamp.getUTCDay()] + ', ' + timestamp.getUTCDate() + ' ' + month[timestamp.getUTCMonth()] + ' ' + timestamp.getUTCFullYear() + ' ' + timestamp.getUTCHours() + ':' + timestamp.getUTCMinutes() + ':' + timestamp.getUTCSeconds() + ' GMT';
+app.get('/api/:dateString?', (req, res) => {
+  let date;
+  const {dateString} = req.params;
+  if(!dateString){
+    date = new Date();
+  }else{
+    if(!isNaN(dateString)){
+      date = new Date(parseInt(dateString));
+    }else{
+      date = new Date(dateString);
+    }
+  }
+  const unixCode = date.getTime();  
+  const utcTime = date.toUTCString();
   const query = {
-    'unix': date,
+    'unix': unixCode,
     'utc':utcTime
   };
-  console.log(query);
-  res.json(query);
+  if(date.toString() === 'Invalid Date'){
+    res.json({ error: date.toString()});
+  }else{
+    console.log(query);
+    res.json(query);
+  }  
 });
 
 // your first API endpoint... 
